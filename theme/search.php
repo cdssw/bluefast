@@ -13,24 +13,15 @@
     <?php while (have_posts()): the_post(); ?>
       <article <?php post_class('card'); ?>>
         <a class="card-link" href="<?php the_permalink(); ?>">
-          <?php if (has_post_thumbnail()) {
-            the_post_thumbnail('thumb-card', ['loading' => 'lazy', 'class' => 'card-thumb']);
-          } ?>
+          <?php if (has_post_thumbnail()) the_post_thumbnail('thumb-card',['loading'=>'lazy','class'=>'card-thumb']); ?>
           <h2 class="card-title"><?php the_title(); ?></h2>
           <p class="card-meta"><?php echo get_the_date(); ?></p>
-          <p class="card-excerpt">
-            <?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 28)); ?>
-          </p>
+          <p class="card-excerpt"><?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 28)); ?></p>
         </a>
       </article>
     <?php endwhile; ?>
-
     <nav class="pagination">
-      <?php the_posts_pagination([
-        'mid_size'  => 1,
-        'prev_text' => '이전',
-        'next_text' => '다음',
-      ]); ?>
+      <?php the_posts_pagination(['mid_size'=>1,'prev_text'=>'이전','next_text'=>'다음']); ?>
     </nav>
   </section>
 <?php else: ?>

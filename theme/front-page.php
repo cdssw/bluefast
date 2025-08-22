@@ -7,8 +7,11 @@
       <h2 class="home-title">인기글</h2>
       <div class="post-list">
         <?php
+        $limit  = (int) bf_opt('popular_limit', 6);
+        $days   = (int) bf_opt('popular_days', 30);
+        $cache  = (int) bf_opt('popular_cache', 30);        
         // 최근 30일 기준 상위 6개, 30분 캐시(테스트 중이면 days=0, 캐시=5분도 OK)
-        $popular = bf_get_popular_posts_cached(6, 30, 30);
+        $popular = bf_get_popular_posts_cached($limit, $days, $cache);
         if ($popular->have_posts()):
           while ($popular->have_posts()): $popular->the_post(); ?>
             <article <?php post_class('card'); ?>>

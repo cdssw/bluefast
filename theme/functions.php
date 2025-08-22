@@ -17,13 +17,8 @@ add_action('after_setup_theme', function () {
   add_image_size('thumb-card', 360, 200, true);
 });
 
-/* 위젯(사이드바/헤더 광고) */
+/* 위젯(헤더 광고만 유지) */
 add_action('widgets_init', function () {
-  register_sidebar([
-    'name' => '사이드바','id' => 'sidebar-1',
-    'before_widget'=>'<section class="widget">','after_widget'=>'</section>',
-    'before_title'=>'<h3 class="widget-title">','after_title'=>'</h3>',
-  ]);
   register_sidebar([
     'name' => '헤더 광고','id' => 'header-ad','description'=>'상단(제목/메뉴 아래)',
     'before_widget'=>'<div class="ad ad-header" aria-label="advertisement"><div class="ad-slot">',
@@ -153,16 +148,18 @@ function bf_flush_related_cache($pid){
 add_action('save_post_post','bf_flush_related_cache');
 add_action('deleted_post','bf_flush_related_cache');
 
-/* ===== 11단계: 테마 설정(관리자 페이지) ===== */
-function bf_opt($k,$d=null){ $o=get_option('bluefast_options',[]); return (isset($o[$k]) && $o[$k]!=='') ? $o[$k] : $d; }
+/* ===== 11단계: 테마 설정(관리자 페이지) – 사이드바 슬롯 제거, 하단 슬롯 추가 ===== */
+function bf_opt($k,$d=null){ $o=get_option('bluefast_options',[]); return (isset($o[$k]) && $o[$k] !== '') ? $o[$k] : $d; }
 function bf_opt_bool($k,$d=false){ return (bool)intval(bf_opt($k,$d?1:0)); }
 function bf_inarticle_positions_opt(){ $raw=bf_opt('inarticle_positions','2,5'); $nums=array_filter(array_map('intval',preg_split('/[,\s]+/',$raw))); return $nums?:[2,5]; }
 
 add_action('after_switch_theme', function(){
   $o=get_option('bluefast_options'); if($o!==false) return;
   add_option('bluefast_options',[
-    'adsense_enabled'=>1,'adsense_client'=>'',
-    'slot_inarticle'=>'','slot_sidebar'=>'',
+    'adsense_enabled'=>1,
+    'adsense_client'=>'',
+    'slot_inarticle'=>'',
+    'slot_bottom'=>'',             // 본문 하단 슬롯
     'inarticle_positions'=>'2,5',
     'popular_limit'=>6,'popular_days'=>30,'popular_cache'=>30,
   ]);
@@ -178,7 +175,7 @@ function bf_options_sanitize($in){
   $out['adsense_enabled']=empty($in['adsense_enabled'])?0:1;
   $out['adsense_client']=sanitize_text_field($in['adsense_client']??'');
   $out['slot_inarticle']=sanitize_text_field($in['slot_inarticle']??'');
-  $out['slot_sidebar']=sanitize_text_field($in['slot_sidebar']??'');
+  $out['slot_bottom']   =sanitize_text_field($in['slot_bottom']??'');
   $out['inarticle_positions']=preg_replace('/[^0-9,\s]/','',(string)($in['inarticle_positions']??'2,5'));
   $out['popular_limit']=max(1,min(48,intval($in['popular_limit']??6)));
   $out['popular_days']=max(0,min(3650,intval($in['popular_days']??30)));
@@ -196,11 +193,17 @@ function bf_render_settings_page(){
 
       <h2>애드센스</h2>
       <table class="form-table" role="presentation">
-        <tr><th scope="row">사용</th><td><label><input type="checkbox" name="bluefast_options[adsense_enabled]" value="1" <?php checked(!empty($o['adsense_enabled'])); ?>> 애드센스 사용(ON/OFF)</label></td></tr>
-        <tr><th scope="row">Client ID</th><td><input type="text" name="bluefast_options[adsense_client]" value="<?php echo esc_attr($o['adsense_client']??''); ?>" class="regular-text" placeholder="ca-pub-XXXXXXXXXXXX"></td></tr>
-        <tr><th scope="row">인아티클 Slot</th><td><input type="text" name="bluefast_options[slot_inarticle]" value="<?php echo esc_attr($o['slot_inarticle']??''); ?>" class="regular-text" placeholder="예: 0000000001"></td></tr>
-        <tr><th scope="row">사이드바 Slot</th><td><input type="text" name="bluefast_options[slot_sidebar]" value="<?php echo esc_attr($o['slot_sidebar']??''); ?>" class="regular-text" placeholder="예: 0000000002"></td></tr>
-        <tr><th scope="row">본문 삽입 위치</th><td><input type="text" name="bluefast_options[inarticle_positions]" value="<?php echo esc_attr($o['inarticle_positions']??'2,5'); ?>" class="regular-text" placeholder="예: 2,5"><p class="description">문단 번호 뒤 삽입(쉼표 구분)</p></td></tr>
+        <tr><th scope="row">사용</th>
+          <td><label><input type="checkbox" name="bluefast_options[adsense_enabled]" value="1" <?php checked(!empty($o['adsense_enabled'])); ?>> 애드센스 사용(ON/OFF)</label></td></tr>
+        <tr><th scope="row">Client ID</th>
+          <td><input type="text" name="bluefast_options[adsense_client]" value="<?php echo esc_attr($o['adsense_client']??''); ?>" class="regular-text" placeholder="ca-pub-XXXXXXXXXXXX"></td></tr>
+        <tr><th scope="row">인아티클 Slot</th>
+          <td><input type="text" name="bluefast_options[slot_inarticle]" value="<?php echo esc_attr($o['slot_inarticle']??''); ?>" class="regular-text" placeholder="예: 0000000001"></td></tr>
+        <tr><th scope="row">하단 Slot</th>
+          <td><input type="text" name="bluefast_options[slot_bottom]" value="<?php echo esc_attr($o['slot_bottom']??''); ?>" class="regular-text" placeholder="예: 0000000003"></td></tr>
+        <tr><th scope="row">본문 삽입 위치</th>
+          <td><input type="text" name="bluefast_options[inarticle_positions]" value="<?php echo esc_attr($o['inarticle_positions']??'2,5'); ?>" class="regular-text" placeholder="예: 2,5">
+            <p class="description">문단 번호 뒤 삽입(쉼표 구분)</p></td></tr>
       </table>
 
       <h2>인기글</h2>
@@ -212,11 +215,6 @@ function bf_render_settings_page(){
 
       <?php submit_button(); ?>
     </form>
-
-    <hr>
-    <h2>사이드바 광고 쇼트코드</h2>
-    <p>위젯에서 다음을 입력하세요. slot을 비워두면 설정의 사이드바 슬롯을 사용합니다.</p>
-    <code>[ads_sidebar]</code>
   </div>
   <?php
 }
@@ -228,55 +226,55 @@ add_action('wp_head', function () {
   printf('<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%s" crossorigin="anonymous"></script>', esc_attr($client));
 }, 1);
 
-/* 본문 중간 인아티클 자동 삽입 */
-function bf_insert_incontent_ads($content){
-  if(is_admin()||is_preview()||is_feed()||!is_singular('post')) return $content;
-  if(!bf_opt_bool('adsense_enabled')) return $content;
-  $client=bf_opt('adsense_client',''); $slot=bf_opt('slot_inarticle','');
-  if(!$client||!$slot) return $content;
+// 짧은 글(≤4문단)은 인아티클 0개, 5~7문단은 1개(2번째 뒤), 8문단 이상은 2개(2·5)
+function bf_insert_incontent_ads($content) {
+  if (is_admin() || is_preview() || is_feed() || !is_singular('post')) return $content;
+  if (!bf_opt_bool('adsense_enabled')) return $content;
 
-  // 개발 환경에서 테스트 광고 강제(선택)
+  $client = bf_opt('adsense_client', ''); $slot = bf_opt('slot_inarticle', '');
+  if (!$client || !$slot) return $content;
+
+  $parts = preg_split('/(<\\/p>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+  if (!$parts || count($parts) < 2) return $content;
+
+  // 문단 수
+  $para_total = 0; foreach ($parts as $p) if (stripos($p, '</p>') !== false) $para_total++;
+
+  if ($para_total <= 4) return $content;          // 짧은 글: 인아티클 생략
+  $positions = ($para_total <= 7) ? [2] : [2,5];  // 중간: 1개, 긴 글: 2개
+
   $adtest = (function_exists('wp_get_environment_type') && wp_get_environment_type()==='development') ? ' data-adtest="on"' : '';
-
-  $ins=sprintf('<ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="%s" data-ad-slot="%s"%s></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>',
+  $ins = sprintf('<ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="%s" data-ad-slot="%s"%s></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>',
     esc_attr($client), esc_attr($slot), $adtest);
-  $ad_html='<div class="ad ad-in-article" aria-label="advertisement"><div class="ad-slot">'.$ins.'</div></div>';
+  $ad_html = '<div class="ad ad-in-article" aria-label="advertisement"><div class="ad-slot">'.$ins.'</div></div>';
 
-  $parts=preg_split('/(<\\/p>)/i',$content,-1,PREG_SPLIT_DELIM_CAPTURE);
-  if(!$parts||count($parts)<2) return $content;
-  $insert_after = apply_filters('bf_incontent_ad_positions', bf_inarticle_positions_opt());
-
-  $result=''; $p=0;
-  for($i=0;$i<count($parts);$i++){
-    $result.=$parts[$i];
-    if(stripos($parts[$i],'</p>')!==false){
-      $p++;
-      if(in_array($p,$insert_after,true)) $result.=$ad_html;
+  $out = ''; $iPara = 0;
+  for ($i=0; $i<count($parts); $i++) {
+    $out .= $parts[$i];
+    if (stripos($parts[$i], '</p>') !== false) {
+      $iPara++;
+      if (in_array($iPara, $positions, true)) $out .= $ad_html;
     }
   }
-  return $result;
+  return $out;
 }
 add_filter('the_content','bf_insert_incontent_ads',110);
 
-/* 사이드바 AdSense 쇼트코드: [ads_sidebar slot="..." width="300" height="600"] */
-function bf_adsense_sidebar_shortcode($atts=[]){
-  $a=shortcode_atts(['slot'=>'','width'=>'300','height'=>'600'],$atts,'ads_sidebar');
-  if(!bf_opt_bool('adsense_enabled')) return '';
-  $client=bf_opt('adsense_client',''); $slot=$a['slot']!=='' ? $a['slot'] : bf_opt('slot_sidebar','');
-  if(!$client||!$slot) return '';
+/* 본문 하단 광고 자동 삽입(콘텐츠 끝에 1개) */
+function bf_insert_bottom_ad($content){
+  if(is_admin()||is_preview()||is_feed()||!is_singular('post')) return $content;
+  if(!bf_opt_bool('adsense_enabled')) return $content;
 
-  $adtest = (function_exists('wp_get_environment_type') && wp_get_environment_type()==='development') ? ' data-adtest="on"' : '';
+  $client=bf_opt('adsense_client',''); 
+  $slot  = bf_opt('slot_bottom','');           // 하단 전용 슬롯
+  if(!$slot) $slot = bf_opt('slot_inarticle',''); // 없으면 인아티클 슬롯 재사용
+  if(!$client||!$slot) return $content;
 
-  ob_start(); ?>
-  <div class="ad ad-sidebar" aria-label="advertisement">
-    <div class="ad-slot">
-      <ins class="adsbygoogle"
-           style="display:inline-block;width:<?php echo esc_attr($a['width']); ?>px;height:<?php echo esc_attr($a['height']); ?>px"
-           data-ad-client="<?php echo esc_attr($client); ?>"
-           data-ad-slot="<?php echo esc_attr($slot); ?>"<?php echo $adtest; ?>></ins>
-      <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
-    </div>
-  </div>
-  <?php return ob_get_clean();
+  $adtest=(function_exists('wp_get_environment_type') && wp_get_environment_type()==='development') ? ' data-adtest="on"' : '';
+  $ins=sprintf('<ins class="adsbygoogle" style="display:block" data-ad-client="%s" data-ad-slot="%s" data-ad-format="auto" data-full-width-responsive="true"%s></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>',
+    esc_attr($client), esc_attr($slot), $adtest);
+  $html='<div class="ad ad-bottom" aria-label="advertisement"><div class="ad-slot">'.$ins.'</div></div>';
+
+  return $content . $html; // 본문 끝에 붙이기 → 연관글 위에 위치
 }
-add_shortcode('ads_sidebar','bf_adsense_sidebar_shortcode');
+add_filter('the_content','bf_insert_bottom_ad',120);

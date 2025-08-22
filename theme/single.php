@@ -17,8 +17,6 @@
         <?php endif; ?>
       </header>
 
-      <?php if (is_active_sidebar('header-ad')) { dynamic_sidebar('header-ad'); } ?>
-
       <div class="single-content">
         <?php
           the_content();
@@ -31,9 +29,7 @@
         <div class="next"><?php next_post_link('%link','다음 글 →'); ?></div>
       </nav>
 
-      <?php
-      $rel_q = bf_get_related_posts(get_the_ID(), 6, 12);
-      ?>
+      <?php $rel_q = bf_get_related_posts(get_the_ID(), 6, 12); ?>
       <section class="related-section">
         <h2 class="related-title">연관글</h2>
         <?php if ($rel_q->have_posts()): ?>
@@ -59,10 +55,12 @@
   <?php endif; ?>
 
   <aside class="sidebar">
-    <?php
-    if (is_active_sidebar('sidebar-1')) dynamic_sidebar('sidebar-1');
-    else echo '<section class="widget"><h3 class="widget-title">사이드바</h3><p>관리자 > 모양 > 위젯에서 위젯을 추가하세요.</p></section>';
-    ?>
+    <section class="widget">
+      <h3 class="widget-title">카테고리</h3>
+      <ul class="cat-list">
+        <?php wp_list_categories(['title_li'=>'','orderby'=>'name','show_count'=>false,'hide_empty'=>false]); ?>
+      </ul>
+    </section>
   </aside>
 </div>
 

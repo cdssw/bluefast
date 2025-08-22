@@ -123,3 +123,66 @@ mark { background: #ffec99; padding: 0 2px; }
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* 헤더 다크 테마 */
+.site-header {
+  background: #0f172a;              /* 다크 네이비 */
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,.08);
+  box-shadow: 0 1px 0 rgba(255,255,255,.06) inset;
+}
+.site-title a { color: #fff; }
+.site-nav a { color: #e5e7eb; }
+.site-nav a:hover { color: #fff; text-decoration: none; }
+
+/* 다크 헤더에서 검색창 색 반전 */
+.site-search input[type="search"] {
+  background: #111827;
+  border: 1px solid #374151;
+  color: #f9fafb;
+}
+.site-search input::placeholder { color: #9ca3af; }
+.site-search button {
+  background: #2563eb; border-color: #2563eb; color: #fff;
+}
+.site-search button:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+/* 포커스 링(다크 배경에서 가시성 향상) */
+.site-header a:focus-visible,
+.site-header button:focus-visible,
+.site-header input:focus-visible {
+  outline: 2px solid #60a5fa; /* 밝은 블루 */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.ad-header { margin: 12px 0 16px; }
+
+@media (max-width: 640px) {
+  .site-header .container { flex-wrap: wrap; }
+  .site-nav { order: 2; width: 100%; margin-top: 8px; }
+  .site-search { order: 3; width: 100%; margin-left: 0; margin-top: 8px; }
+}
+
+/* 스크롤 내려도 헤더 고정(선택) */
+.site-header { position: sticky; top: 0; z-index: 1000; }
+
+/* 데스크톱에서만 사이드바 광고 노출 */
+@media (max-width: 980px) {
+  .ad-sidebar { display: none; }
+}
+
+/* 위젯 간격 정리 */
+.sidebar .widget { margin-bottom: 16px; }
+.sidebar .widget:last-child { margin-bottom: 0; }
+/* 위젯 제목 강조 */
+.sidebar .widget-title { font-weight: 700; font-size: 15px; color: #111; }
+
+/* 사이드바 카테고리 리스트 */
+.cat-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cat-list li a { text-decoration: none; color: #111; font-size: 14px; }
+.cat-list li a:hover { text-decoration: underline; }
+
+/* 인아티클과 하단 광고 사이 간격 보강 */
+.ad-in-article { margin: 16px 0; }
+.ad-bottom { margin-top: 24px; }  /* 필요 시 32px로 늘려도 좋습니다 */

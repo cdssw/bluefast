@@ -1,0 +1,154 @@
+/*
+Theme Name: BlueFast
+Text Domain: bluefast
+Version: 0.1.0
+Description: Fast, responsive, monetization-ready theme.
+Author: Parang
+*/
+
+/* ========== Root & Reset ========== */
+:root {
+  --container: 1100px;
+  --gap: 16px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --border: #eee;
+  --text: #111;
+  --muted: #666;
+  --muted-2: #777;
+  --bg: #fff;
+  --primary: #222;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--bg);
+  font: 16px/1.7 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple SD Gothic Neo, Noto Sans KR, sans-serif;
+}
+img, video { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-underline-position: under; }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid #6aa6ff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ========== Base Layout ========== */
+.container { max-width: var(--container); margin: 0 auto; padding: 0 16px; }
+
+/* Header / Footer */
+.site-header, .site-footer { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.site-footer { border-top: 1px solid var(--border); border-bottom: 0; margin-top: 24px; }
+.site-title { margin: 0; }
+.site-title a { text-decoration: none; color: inherit; }
+
+/* 헤더 컨테이너 정렬: 제목 - 메뉴 - 검색창 */
+.site-header .container { display: flex; align-items: center; gap: 14px; }
+.site-search { margin-left: auto; } /* 검색창을 우측으로 밀기 */
+
+/* 기본 아티클 구분선 */
+article { padding: 12px 0; border-bottom: 1px solid #f2f2f2; }
+
+/* ========== Navigation ========== */
+.site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; }
+.site-nav li { margin: 0; }
+.site-nav a { text-decoration: none; color: inherit; }
+.site-nav a:hover { text-decoration: underline; }
+
+/* ========== Header Search ========== */
+.site-search .search-form { display: flex; gap: 8px; }
+.site-search input[type="search"] {
+  width: 220px; padding: 8px 10px;
+  border: 1px solid #ddd; border-radius: 6px;
+}
+.site-search button {
+  padding: 8px 12px;
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.site-search button:hover { filter: brightness(0.95); }
+
+/* ========== Card Grid (List) ========== */
+.post-list { display: grid; grid-template-columns: 1fr; gap: var(--gap); }
+@media (min-width: 640px) { .post-list { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .post-list { grid-template-columns: repeat(3, 1fr); } }
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+  transition: box-shadow .2s ease;
+}
+.card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+.card-link { display: block; color: inherit; text-decoration: none; padding: 12px; }
+.card-thumb { width: 100%; height: auto; display: block; margin-bottom: 8px; border-radius: var(--radius-sm); }
+.card-title { font-size: 18px; margin: 6px 0; line-height: 1.4; }
+.card-meta { color: var(--muted-2); font-size: 13px; margin: 0 0 8px; }
+.card-excerpt { color: #333; margin: 0; }
+
+/* ========== Pagination ========== */
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; }
+.pagination .page-numbers {
+  display: inline-block; padding: 8px 12px;
+  border: 1px solid #ddd; border-radius: 6px;
+}
+.pagination .current { background: var(--text); color: #fff; border-color: var(--text); }
+
+/* ========== Archive Header ========== */
+.archive-header { margin: 8px 0 16px; }
+.archive-title { font-size: 22px; margin: 0 0 6px; }
+.archive-desc { color: #555; }
+
+/* ========== Single Layout ========== */
+.single-wrap {
+  display: grid;
+  grid-template-columns: 1fr; /* 모바일: 1열 */
+  gap: 24px;
+}
+@media (min-width: 980px) {
+  .single-wrap { grid-template-columns: minmax(0, 1fr) 320px; } /* 본문 + 사이드바 */
+}
+.single-title { margin: 8px 0 6px; line-height: 1.35; }
+.single-meta { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.single-thumb { margin: 12px 0 16px; }
+.single-thumb-img { width: 100%; height: auto; display: block; border-radius: 8px; }
+.single-content { line-height: 1.72; }
+
+/* 본문 내 미디어 여백 */
+.single-content img,
+.single-content figure,
+.single-content iframe { max-width: 100%; height: auto; margin: 16px 0; }
+
+/* 이전/다음 글 내비게이션 */
+.post-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.post-nav a { text-decoration: none; color: var(--text); }
+.post-nav a:hover { text-decoration: underline; }
+
+/* 사이드바 위젯 */
+.sidebar .widget {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+.sidebar .widget-title { font-size: 16px; margin: 0 0 8px; }
+.sidebar .widget ul { list-style: none; margin: 0; padding-left: 0; }
+
+/* 검색어 하이라이트 */
+mark { background: #ffec99; padding: 0 2px; }
+
+/* 사용자가 모션 최소화를 선호할 때 */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Home 섹션 제목 */
+.home-title { font-size: 22px; margin: 12px 0 10px; }
+.home-section { margin: 18px 0 28px; }

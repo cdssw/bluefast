@@ -8,6 +8,10 @@
   ?>
 </header>
 
+<div class="search-inline mobile-only">
+  <?php get_search_form(); ?>
+</div>
+
 <?php if (have_posts()): ?>
   <section class="post-list">
     <?php while (have_posts()): the_post(); ?>

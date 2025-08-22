@@ -6,12 +6,13 @@ Description: Fast, responsive, monetization-ready theme.
 Author: Parang
 */
 
+/* ========== Root & Reset ========== */
 :root {
   --container: 1100px;
   --gap: 16px;
   --radius: 10px;
-  --radius-sm: 6px;
-  --border: #eee;
+  --radius-sm: 8px;
+  --border: #eaeaea;
   --text: #111;
   --muted: #666;
   --muted-2: #777;
@@ -34,34 +35,56 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   border-radius: 4px;
 }
 
-/* Layout */
+/* ========== Base Layout ========== */
 .container { max-width: var(--container); margin: 0 auto; padding: 0 16px; }
-.site-header, .site-footer { padding: 12px 0; border-bottom: 1px solid var(--border); }
-.site-footer { border-top: 1px solid var(--border); border-bottom: 0; margin-top: 24px; }
+
+/* Header / Footer */
+.site-header {
+  padding: 8px 0;                     /* 컴팩트 헤더 */
+  background: #0f172a;                /* 다크 헤더 */
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 1px 0 rgba(255,255,255,.06) inset;
+}
+.site-header .container { display: flex; align-items: center; gap: 10px; min-height: 48px; }
 .site-title { margin: 0; }
-.site-title a { text-decoration: none; color: inherit; }
-.site-header .container { display: flex; align-items: center; gap: 14px; }
-.site-search { margin-left: auto; }
+.site-title a { display: inline-flex; align-items: center; font-size: 18px; line-height: 1.1; font-weight: 700; color: #fff; text-decoration: none; }
+.site-nav { margin-left: auto; }             /* 네비를 우측으로 */
+.site-nav .menu { display: flex; align-items: center; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.site-nav a { display: inline-flex; align-items: center; line-height: 1; font-size: 14px; padding: 6px 8px; border-radius: 6px; color: #e5e7eb; text-decoration: none; }
+.site-nav a:hover { color: #fff; text-decoration: none; }
+
+/* 헤더 아래 공간(헤더 광고/본문과 간격) */
+.site-header + .container { margin-top: 12px; }
+
+.site-footer { padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 0; margin-top: 24px; }
 article { padding: 12px 0; border-bottom: 1px solid #f2f2f2; }
 
-/* Navigation */
-.site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; }
-.site-nav li { margin: 0; }
-.site-nav a { text-decoration: none; color: inherit; }
-.site-nav a:hover { text-decoration: underline; }
-
-/* Header Search */
+/* ========== Header Search (사용 시) ========== */
+/* 헤더에서 검색을 제거하셨다면 아래는 영향 없음 */
 .site-search .search-form { display: flex; gap: 8px; }
-.site-search input[type="search"] { width: 220px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; }
-.site-search button { padding: 8px 12px; border: 1px solid var(--primary); background: var(--primary); color: #fff; border-radius: 6px; cursor: pointer; }
+.site-search input[type="search"] {
+  width: 220px; padding: 8px 10px; border: 1px solid #374151; border-radius: 6px;
+  background: #111827; color: #f9fafb;
+}
+.site-search input::placeholder { color: #9ca3af; }
+.site-search button {
+  padding: 8px 12px; border: 1px solid #2563eb; background: #2563eb; color: #fff; border-radius: 6px; cursor: pointer;
+}
 .site-search button:hover { filter: brightness(0.95); }
 
-/* Card Grid */
+/* ========== Card Grid (List) ========== */
 .post-list { display: grid; grid-template-columns: 1fr; gap: var(--gap); }
 @media (min-width: 640px) { .post-list { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 980px) { .post-list { grid-template-columns: repeat(3, 1fr); } }
 
-.card { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fff; transition: box-shadow .2s ease; }
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
 .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.06); }
 .card-link { display: block; color: inherit; text-decoration: none; padding: 12px; }
 .card-thumb { width: 100%; height: auto; display: block; margin-bottom: 8px; border-radius: var(--radius-sm); object-fit: cover; }
@@ -69,17 +92,17 @@ article { padding: 12px 0; border-bottom: 1px solid #f2f2f2; }
 .card-meta { color: var(--muted-2); font-size: 13px; margin: 0 0 8px; }
 .card-excerpt { color: #333; margin: 0; }
 
-/* Pagination */
+/* ========== Pagination ========== */
 .pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; }
 .pagination .page-numbers { display: inline-block; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; }
 .pagination .current { background: var(--text); color: #fff; border-color: var(--text); }
 
-/* Archive Header */
+/* ========== Archive Header ========== */
 .archive-header { margin: 8px 0 16px; }
-.archive-title { font-size: 22px; margin: 0 0 6px; }
+.archive-title { font-size: 20px; margin: 0 0 6px; } /* 섹션 타이틀보다 살짝 큼 */
 .archive-desc { color: #555; }
 
-/* Single */
+/* ========== Single ========== */
 .single-wrap { display: grid; grid-template-columns: 1fr; gap: 24px; }
 @media (min-width: 980px) { .single-wrap { grid-template-columns: minmax(0, 1fr) 320px; } }
 .single-title { margin: 8px 0 6px; line-height: 1.35; }
@@ -92,23 +115,49 @@ article { padding: 12px 0; border-bottom: 1px solid #f2f2f2; }
 .post-nav a { text-decoration: none; color: var(--text); }
 .post-nav a:hover { text-decoration: underline; }
 
-/* Sidebar */
-.sidebar .widget { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 12px; background: #fff; }
-.sidebar .widget-title { font-size: 16px; margin: 0 0 8px; }
+/* ========== Sidebar ========== */
+.sidebar .widget {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+.sidebar .widget-title { font-size: 15px; margin: 0 0 8px; font-weight: 700; }
 .sidebar .widget ul { list-style: none; margin: 0; padding-left: 0; }
 
-/* Home 2-column */
-.home-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
-@media (min-width: 980px) { .home-grid { grid-template-columns: minmax(0, 1fr) 320px; } }
-.home-title { font-size: 22px; margin: 12px 0 10px; }
+/* 사이드바 카테고리 리스트 */
+.widget-categories .cat-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.widget-categories .cat-list li a { text-decoration: none; color: #111; font-size: 14px; }
+.widget-categories .cat-list li a:hover { text-decoration: underline; }
+
+/* ========== Home 2-column ========== */
+.home-grid { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; }
+@media (min-width: 980px) {
+  .home-grid { grid-template-columns: minmax(0, 1fr) 320px; }
+  .home-grid > .home-main { grid-column: 1; }
+  .home-grid > .sidebar   { grid-column: 2; align-self: start; }
+}
+
+/* 섹션 타이틀(인기글/최신글) – 사이트 제목(18px)보다 작게 */
+.home-title {
+  font-size: 17px;           /* 22px → 17px */
+  line-height: 36px;         /* 검색 입력 36px과 맞춰 수직 정렬 */
+  margin: 0;                 /* 타이틀 하단 여백 제거로 카드 상단선에 맞춤 */
+  font-weight: 700;
+}
 .home-section { margin: 18px 0 28px; }
 
-/* Related */
+/* 인기글 타이틀 ↔ 사이드바 검색 수평 정렬 미세 조정 */
+.home-main > .home-section:first-child { margin-top: 8px; }
+.sidebar .widget:first-child { margin-top: 8px; }
+
+/* ========== Related ========== */
 .related-section { margin-top: 28px; }
-.related-title { font-size: 20px; margin: 0 0 12px; }
+.related-title { font-size: 19px; margin: 0 0 12px; }
 .related-empty { color: #777; margin: 6px 0 0; }
 
-/* Ads (CLS-safe) */
+/* ========== Ads (CLS-safe) ========== */
 .ad { background: #f7f7f7; text-align: center; border-radius: 8px; overflow: hidden; }
 .ad .ad-slot { display: block; }
 .ad-header .ad-slot { min-height: 90px; }
@@ -116,73 +165,71 @@ article { padding: 12px 0; border-bottom: 1px solid #f2f2f2; }
 .ad-in-article { margin: 16px 0; }
 .ad-in-article .ad-slot { min-height: 280px; }
 @media (max-width: 480px) { .ad-in-article .ad-slot { min-height: 250px; } }
-.ad-sidebar .ad-slot { min-height: 600px; }
+.ad-bottom { margin-top: 24px; }                     /* 본문 하단 광고 상단 여백 */
+.ad-bottom .ad-slot { min-height: 280px; }
+@media (max-width: 480px) { .ad-bottom .ad-slot { min-height: 250px; } }
 
-/* Highlight */
+/* ========== Search (공통 정렬/높이 통일) ========== */
+.search-form { display: flex; gap: 8px; }
+.search-form input[type="search"] {
+  height: 36px; padding: 6px 10px; font-size: 14px;
+  border: 1px solid #ddd; border-radius: 8px;
+}
+.search-form button {
+  height: 36px; padding: 0 12px; font-size: 14px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  white-space: nowrap; min-width: 56px;
+  border: 1px solid #222; background: #222; color: #fff; border-radius: 8px;
+}
+
+/* 사이드바 검색(데스크탑 전용) – 테두리 제거 및 제목 숨김 */
+.widget-search-desktop,
+.widget-search-desktop .wp-block-search {
+  border: 0 !important; background: transparent !important; padding: 0 !important; box-shadow: none !important;
+}
+.sidebar .widget-search-desktop .widget-title,
+.sidebar .wp-block-search__label,
+.sidebar .widget_search .widget-title { display: none !important; }
+.sidebar .widget-search-desktop .search-form,
+.sidebar .widget-search-desktop .wp-block-search__inside-wrapper { display: flex; gap: 8px; }
+.sidebar .widget-search-desktop input[type="search"],
+.sidebar .widget-search-desktop .wp-block-search__input {
+  flex: 1 1 auto; min-width: 0; height: 36px; padding: 6px 10px; font-size: 14px;
+  border: 1px solid #ddd; border-radius: 8px;
+}
+.sidebar .widget-search-desktop button,
+.sidebar .widget-search-desktop .wp-block-search__button {
+  height: 36px; padding: 0 12px; font-size: 14px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  white-space: nowrap; min-width: 56px;
+  border: 1px solid #222; background: #222; color: #fff; border-radius: 8px;
+}
+/* 검색 위젯과 카테고리의 상단선 정렬 */
+.sidebar .widget-search-desktop { margin: 0; }
+.sidebar .widget-categories { margin-top: 0; }
+
+/* 모바일 전용 인라인 검색(목록 위) */
+.search-inline { display: none; }
+@media (max-width: 980px) {
+  .search-inline { display: block; margin: 10px 0 12px; }
+  .search-inline .search-form { display: flex; gap: 8px; }
+  .search-inline input[type="search"] {
+    width: 100%; height: 38px; padding: 8px 10px;
+    border: 1px solid #2f3545; border-radius: 10px; background: #0f172a; color: #f3f4f6;
+  }
+  .search-inline input::placeholder { color: #9ca3af; }
+  .search-inline button {
+    height: 38px; padding: 0 12px; border-radius: 10px;
+    border: 1px solid #2563eb; background: #2563eb; color: #fff;
+  }
+  /* 데스크탑용 사이드바 검색은 모바일에서 숨김 */
+  .widget-search-desktop { display: none; }
+}
+
+/* ========== Highlight ========== */
 mark { background: #ffec99; padding: 0 2px; }
 
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-
-/* 헤더 다크 테마 */
-.site-header {
-  background: #0f172a;              /* 다크 네이비 */
-  color: #fff;
-  border-bottom-color: rgba(255,255,255,.08);
-  box-shadow: 0 1px 0 rgba(255,255,255,.06) inset;
+/* ========== Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
 }
-.site-title a { color: #fff; }
-.site-nav a { color: #e5e7eb; }
-.site-nav a:hover { color: #fff; text-decoration: none; }
-
-/* 다크 헤더에서 검색창 색 반전 */
-.site-search input[type="search"] {
-  background: #111827;
-  border: 1px solid #374151;
-  color: #f9fafb;
-}
-.site-search input::placeholder { color: #9ca3af; }
-.site-search button {
-  background: #2563eb; border-color: #2563eb; color: #fff;
-}
-.site-search button:hover { background: #1d4ed8; border-color: #1d4ed8; }
-
-/* 포커스 링(다크 배경에서 가시성 향상) */
-.site-header a:focus-visible,
-.site-header button:focus-visible,
-.site-header input:focus-visible {
-  outline: 2px solid #60a5fa; /* 밝은 블루 */
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-.ad-header { margin: 12px 0 16px; }
-
-@media (max-width: 640px) {
-  .site-header .container { flex-wrap: wrap; }
-  .site-nav { order: 2; width: 100%; margin-top: 8px; }
-  .site-search { order: 3; width: 100%; margin-left: 0; margin-top: 8px; }
-}
-
-/* 스크롤 내려도 헤더 고정(선택) */
-.site-header { position: sticky; top: 0; z-index: 1000; }
-
-/* 데스크톱에서만 사이드바 광고 노출 */
-@media (max-width: 980px) {
-  .ad-sidebar { display: none; }
-}
-
-/* 위젯 간격 정리 */
-.sidebar .widget { margin-bottom: 16px; }
-.sidebar .widget:last-child { margin-bottom: 0; }
-/* 위젯 제목 강조 */
-.sidebar .widget-title { font-weight: 700; font-size: 15px; color: #111; }
-
-/* 사이드바 카테고리 리스트 */
-.cat-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.cat-list li a { text-decoration: none; color: #111; font-size: 14px; }
-.cat-list li a:hover { text-decoration: underline; }
-
-/* 인아티클과 하단 광고 사이 간격 보강 */
-.ad-in-article { margin: 16px 0; }
-.ad-bottom { margin-top: 24px; }  /* 필요 시 32px로 늘려도 좋습니다 */

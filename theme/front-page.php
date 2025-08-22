@@ -2,6 +2,9 @@
 
 <div class="home-grid">
   <div class="home-main">
+    <div class="search-inline mobile-only">
+      <?php get_search_form(); ?>
+    </div>    
     <section class="home-section">
       <h2 class="home-title">인기글</h2>
       <div class="post-list">
@@ -54,6 +57,10 @@
   </div>
 
   <aside class="sidebar">
+    <!-- 데스크톱 사이드바 검색(카테고리 위) -->
+    <section class="widget widget-search-desktop">
+      <?php get_search_form(); ?>
+    </section>
     <section class="widget">
       <h3 class="widget-title">카테고리</h3>
       <ul class="cat-list">

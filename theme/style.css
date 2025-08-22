@@ -152,3 +152,34 @@ mark { background: #ffec99; padding: 0 2px; }
 /* Home 섹션 제목 */
 .home-title { font-size: 22px; margin: 12px 0 10px; }
 .home-section { margin: 18px 0 28px; }
+
+/* 연관글 섹션 */
+.related-section { margin-top: 28px; }
+.related-title { font-size: 20px; margin: 0 0 12px; }
+.related-empty { color: #777; margin: 6px 0 0; }
+
+/* 헤더 배너 기본 높이 예약(데스크톱 90px, 모바일 60px 가정) */
+.ad-header .ad-slot { min-height: 90px; }
+@media (max-width: 640px) {
+  .ad-header .ad-slot { min-height: 60px; }
+}
+
+/* === Ads (CLS-safe) === */
+.ad { background: #f7f7f7; text-align: center; border-radius: 8px; overflow: hidden; }
+.ad .ad-slot { display: block; }
+
+/* 본문 중간(데스크톱 기준 336x280, 모바일 300x250 예약) */
+.ad-in-article { margin: 16px 0; }
+.ad-in-article .ad-slot { min-height: 280px; }
+@media (max-width: 480px) { .ad-in-article .ad-slot { min-height: 250px; } }
+
+/* 사이드바(300x600 고정 권장) */
+.ad-sidebar .ad-slot { min-height: 600px; }
+
+/* 홈 2컬럼 레이아웃(본문 + 사이드바) */
+.home-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 980px) {
+  .home-grid { grid-template-columns: minmax(0, 1fr) 320px; }
+}
+.home-title { font-size: 22px; margin: 12px 0 10px; }
+.home-section { margin: 18px 0 28px; }

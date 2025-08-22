@@ -36,6 +36,16 @@ add_action('widgets_init', function () {
     'before_title'  => '<h3 class="widget-title">',
     'after_title'   => '</h3>',
   ]);
+
+  register_sidebar([
+    'name'          => '헤더 광고',
+    'id'            => 'header-ad',
+    'description'   => '사이트 상단(제목/메뉴 아래)에 노출되는 배너 영역입니다.',
+    'before_widget' => '<div class="ad ad-header" aria-label="advertisement"><div class="ad-slot">',
+    'after_widget'  => '</div></div>',
+    'before_title'  => '', // 제목 숨김(광고엔 보통 타이틀을 쓰지 않음)
+    'after_title'   => '',
+  ]);  
 });
 
 /**
@@ -219,3 +229,214 @@ add_action('publish_post', function($post_id){
     update_post_meta($post_id, '_bf_views', 0);
   }
 });
+
+/**
+ * 연관글 ID 추출(태그 우선, 태그 없으면 카테고리)
+ * - 결과는 글 ID 배열로 캐싱(기본 12시간)
+ * - 캐시를 쓰는 이유: 매 조회마다 tax_query를 돌리지 않기 위해
+ */
+function bf_get_related_post_ids($post_id, $limit = 6, $ttl_hours = 12) {
+  $cache_key = "bf_rel_ids_{$post_id}_{$limit}";
+  $ids = get_transient($cache_key);
+  if (is_array($ids)) return $ids;
+
+  // 현재 글의 태그/카테고리
+  $tag_ids = wp_get_post_terms($post_id, 'post_tag', ['fields' => 'ids']);
+  $cat_ids = wp_get_post_terms($post_id, 'category', ['fields' => 'ids']);
+
+  // 기본 쿼리 공통 파라미터
+  $base = [
+    'post_type'           => 'post',
+    'post_status'         => 'publish',
+    'post__not_in'        => [$post_id],
+    'ignore_sticky_posts' => true,
+    'no_found_rows'       => true,
+    'fields'              => 'ids',        // ID만 받기(가벼움)
+    'orderby'             => 'date',
+    'order'               => 'DESC',
+    'posts_per_page'      => $limit,
+  ];
+
+  // 1순위: 태그가 있으면 태그 기준
+  if (!empty($tag_ids)) {
+    $ids = get_posts($base + [
+      'tag__in' => $tag_ids,
+    ]);
+  }
+
+  // 태그 결과가 비었거나 태그 자체가 없으면 카테고리 기준으로 보조
+  if (empty($ids) && !empty($cat_ids)) {
+    $ids = get_posts($base + [
+      'category__in' => $cat_ids,
+    ]);
+  }
+
+  // 결국 아무것도 없으면 빈 배열
+  if (!is_array($ids)) $ids = [];
+
+  // 캐싱(기본 12시간)
+  set_transient($cache_key, $ids, $ttl_hours * HOUR_IN_SECONDS);
+  return $ids;
+}
+
+/**
+ * 연관글 쿼리(WP_Query 리턴)
+ * - 캐싱된 ID를 바탕으로 실제 카드 목록을 그릴 수 있게 쿼리 구성
+ */
+function bf_get_related_posts($post_id, $limit = 6, $ttl_hours = 12) {
+  $ids = bf_get_related_post_ids($post_id, $limit, $ttl_hours);
+  if (empty($ids)) {
+    return new WP_Query(['post__in' => [0], 'posts_per_page' => 0]); // 빈 쿼리
+  }
+  return new WP_Query([
+    'post_type'           => 'post',
+    'post_status'         => 'publish',
+    'post__in'            => $ids,       // 캐시된 ID들만
+    'orderby'             => 'post__in', // 캐시된 순서 유지
+    'ignore_sticky_posts' => true,
+    'no_found_rows'       => true,
+  ]);
+}
+
+/**
+ * 연관글 캐시 무효화(해당 글 저장/삭제 시)
+ */
+function bf_flush_related_cache($post_id) {
+  if (get_post_type($post_id) !== 'post') return;
+  // limit 값이 여러 개일 수 있으므로 패턴으로 삭제
+  global $wpdb;
+  $like = $wpdb->esc_like("_transient_bf_rel_ids_{$post_id}_");
+  $keys = $wpdb->get_col($wpdb->prepare(
+    "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
+    $like . '%'
+  ));
+  foreach ($keys as $opt) {
+    $name = str_replace('_transient_', '', $opt);
+    delete_transient($name);
+  }
+}
+add_action('save_post_post', 'bf_flush_related_cache');
+add_action('deleted_post', 'bf_flush_related_cache');
+
+
+// AdSense 사용 토글 + 클라이언트 ID 설정(반드시 교체)
+if (!defined('BF_ADSENSE_ENABLED')) define('BF_ADSENSE_ENABLED', true);
+if (!defined('BF_ADSENSE_CLIENT'))  define('BF_ADSENSE_CLIENT', 'ca-pub-여기에-본인-ID'); // 교체!
+
+// (선택) 슬롯 상수(관리 편의)
+if (!defined('BF_SLOT_INARTICLE')) define('BF_SLOT_INARTICLE', '0000000001'); // ← 교체(인아티클)
+if (!defined('BF_SLOT_SIDEBAR'))   define('BF_SLOT_SIDEBAR', '0000000002');   // ← 교체(사이드바)
+
+// 헤더에 AdSense 로더 1회 삽입
+add_action('wp_head', function () {
+  if (!BF_ADSENSE_ENABLED) return;
+  printf(
+    '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%s" crossorigin="anonymous"></script>',
+    esc_attr(BF_ADSENSE_CLIENT)
+  );
+}, 1);
+
+// 본문 중간 애드센스 자동 삽입(2, 5번째 문단 뒤)
+function bf_insert_incontent_ads($content) {
+  if (!BF_ADSENSE_ENABLED) return $content;
+  if (!is_singular('post') || is_admin() || is_preview() || is_feed()) return $content;
+
+  // 관리자에게 숨기고 싶으면 주석 해제
+  // if (current_user_can('edit_posts')) return $content;
+
+  // 인아티클(Fluid) 유닛
+  $ins = sprintf(
+    '<ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="%s" data-ad-slot="%s"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>',
+    esc_attr(BF_ADSENSE_CLIENT),
+    esc_attr(BF_SLOT_INARTICLE)
+  );
+
+  // CLS 방지용 래퍼(최소 높이 예약)
+  $ad_html = '<div class="ad ad-in-article" aria-label="advertisement"><div class="ad-slot">'.$ins.'</div></div>';
+
+  // </p> 기준 분할 후 지정 위치 뒤 삽입
+  $parts = preg_split('/(<\\/p>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+  if (!$parts || count($parts) < 2) return $content;
+
+  $insert_after = apply_filters('bf_incontent_ad_positions', [2, 5]); // 위치 조정 가능
+
+  $result = '';
+  $pcount = 0;
+  for ($i=0; $i<count($parts); $i++) {
+    $result .= $parts[$i];
+    if (stripos($parts[$i], '</p>') !== false) {
+      $pcount++;
+      if (in_array($pcount, $insert_after, true)) {
+        $result .= $ad_html;
+      }
+    }
+  }
+  return $result;
+}
+add_filter('the_content', 'bf_insert_incontent_ads', 110);
+
+// [ads_sidebar slot="0000000002" width="300" height="600"]
+function bf_adsense_sidebar_shortcode($atts = []) {
+  $a = shortcode_atts([
+    'slot'   => '0000000002', // 사이드바 슬롯 ID
+    'width'  => '300',
+    'height' => '600',
+  ], $atts, 'ads_sidebar');
+
+  // 출력 버퍼 시작
+  ob_start(); ?>
+  <div class="ad ad-sidebar" aria-label="advertisement">
+    <div class="ad-slot">
+      <ins class="adsbygoogle"
+           style="display:inline-block;width:<?php echo esc_attr($a['width']); ?>px;height:<?php echo esc_attr($a['height']); ?>px"
+           data-ad-client="<?php echo esc_attr(BF_ADSENSE_CLIENT); ?>"
+           data-ad-slot="<?php echo esc_attr($a['slot']); ?>"></ins>
+      <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+    </div>
+  </div>
+  <?php
+  return ob_get_clean();
+}
+add_shortcode('ads_sidebar', 'bf_adsense_sidebar_shortcode');
+
+// 로그인 안 한 방문자에겐 dashicons(관리자 아이콘) 제거
+add_action('wp_enqueue_scripts', function () {
+  if (!is_user_logged_in()) {
+    wp_dequeue_style('dashicons');
+  }
+}, 100);
+
+// oEmbed 잔여 훅 제거(임베드 자동 탐지 최소화)
+remove_action('rest_api_init', 'wp_oembed_register_route');
+remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
+remove_action('wp_head', 'wp_oembed_add_host_js');
+
+add_filter('wp_get_attachment_image_attributes', function ($attr, $attachment, $size) {
+  // 히어로처럼 명시적으로 eager 지정한 이미지는 유지(single에서 이미 처리)
+  if (empty($attr['loading'])) {
+    $attr['loading'] = 'lazy';
+  }
+  $attr['decoding'] = 'async';
+  return $attr;
+}, 10, 3);
+
+add_filter('script_loader_tag', function ($tag, $handle) {
+  // 여기 배열에 ‘지연 로드할’ 스크립트 핸들을 등록하세요.
+  $defer_list = ['bluefast-main']; // 예: wp_enqueue_script('bluefast-main', ... );
+  if (in_array($handle, $defer_list, true)) {
+    $tag = str_replace('<script ', '<script defer ', $tag);
+  }
+  return $tag;
+}, 10, 2);
+
+add_filter('wp_resource_hints', function ($hints, $rel) {
+  if ($rel === 'preconnect') {
+    $hints[] = 'https://pagead2.googlesyndication.com';
+    $hints[] = 'https://googleads.g.doubleclick.net';
+  }
+  if ($rel === 'dns-prefetch') {
+    $hints[] = '//pagead2.googlesyndication.com';
+    $hints[] = '//googleads.g.doubleclick.net';
+  }
+  return array_unique($hints);
+}, 10, 2);

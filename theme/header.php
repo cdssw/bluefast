@@ -33,4 +33,10 @@
   </div>
 </header>
 
+<?php if (is_active_sidebar('header-ad')): ?>
+  <div class="container">
+    <?php dynamic_sidebar('header-ad'); ?>
+  </div>
+<?php endif; ?>
+
 <main class="container">

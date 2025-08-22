@@ -54,6 +54,33 @@ get_header();
         <div class="prev"><?php previous_post_link('%link', '← 이전 글'); ?></div>
         <div class="next"><?php next_post_link('%link', '다음 글 →'); ?></div>
       </nav>
+
+      <?php
+      // === 연관글 섹션 ===
+      $rel_q = bf_get_related_posts(get_the_ID(), 6, 12); // 최대 6개, 12시간 캐시
+      ?>
+      <section class="related-section">
+        <h2 class="related-title">연관글</h2>
+        <?php if ($rel_q->have_posts()): ?>
+          <div class="post-list"><!-- 기존 카드 그리드 재사용 -->
+            <?php while ($rel_q->have_posts()): $rel_q->the_post(); ?>
+              <article <?php post_class('card'); ?>>
+                <a class="card-link" href="<?php the_permalink(); ?>">
+                  <?php if (has_post_thumbnail()) {
+                    the_post_thumbnail('thumb-card', ['loading' => 'lazy', 'class' => 'card-thumb']);
+                  } ?>
+                  <h3 class="card-title"><?php the_title(); ?></h3>
+                  <p class="card-meta"><?php echo get_the_date(); ?></p>
+                  <p class="card-excerpt"><?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 20)); ?></p>
+                </a>
+              </article>
+            <?php endwhile; wp_reset_postdata(); ?>
+          </div>
+        <?php else: ?>
+          <p class="related-empty">연관글이 없습니다.</p>
+        <?php endif; ?>
+      </section>
+
     </article>
   <?php endwhile; else: ?>
     <p>글을 찾을 수 없습니다.</p>
